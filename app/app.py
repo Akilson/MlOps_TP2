@@ -3,6 +3,7 @@ import mlflow.sklearn
 from pydantic import BaseModel
 import time
 import requests
+import random
 
 app =  FastAPI()
 
@@ -22,7 +23,10 @@ for _ in range(20):  # max 20 tries
         pass
     print("Waiting for MLflow server...")
     time.sleep(2)
-model = mlflow.sklearn.load_model(model_uri)
+
+current_model = mlflow.sklearn.load_model(model_uri)
+next_model = mlflow.sklearn.load_model(model_uri)
+p = random.uniform(0, 1)
 
 class Param(BaseModel):
     size: float
@@ -42,7 +46,10 @@ def predict(features: Param):
     size = features.size
     nb_rooms = features.rooms
     is_garden = features.is_garden
-    results = model.predict([[size, nb_rooms, is_garden]])
+    if random.uniform(0, 1) < p:
+        results = current_model.predict([[size, nb_rooms, is_garden]])
+    else:
+        results = next_model.predict([[size, nb_rooms, is_garden]])
     return {"y_pred": results[0]}
 
 @app.post("/update-model")
@@ -50,4 +57,9 @@ def update(features: ParamModel):
 	name = features.name
 	version = features.version
 	model_uri = f"models:/{name}/{version}"
-	model = mlflow.sklearn.load_model(model_uri)
+	next_model = mlflow.sklearn.load_model(model_uri)
+
+@app.get("/accept-next-model")
+def accept_next_mode():
+	current_model = next_model
+	return {"message": "Next model promoted as current"}
