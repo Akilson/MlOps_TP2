@@ -1,0 +1,6 @@
+mlflow
+pydantic
+fastapi
+uvicorn[standard]
+time
+requests

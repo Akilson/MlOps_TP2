@@ -3,10 +3,9 @@ from mlflow.models import infer_signature
 
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
-import joblib
 
 # Load dataset
-df = pd.read_csv("houses.csv")
+df = pd.read_csv("data/houses.csv")
 X = df[["size", "nb_rooms", "garden"]]
 y = df["price"]
 
@@ -23,7 +22,8 @@ model = RandomForestRegressor(**params)
 model.fit(X, y)
 
 # Set our tracking server uri for logging
-mlflow.set_tracking_uri(uri="http://127.0.0.1:8080")
+# mlflow.set_tracking_uri(uri="http://127.0.0.1:8080")
+mlflow.set_tracking_uri(uri="http://mlflow-service:8080")
 
 # Create a new MLflow Experiment
 mlflow.set_experiment("MLflow Quickstart")
